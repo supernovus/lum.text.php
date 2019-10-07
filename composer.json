@@ -1,0 +1,24 @@
+{
+  "name": "lum/lum-text",
+  "description": "Lum File Utilities",
+  "license": "MIT",
+  "authors":
+  [
+    {
+      "name": "Timothy Totten",
+      "email": "supernovus@gmail.com",
+      "role": "Original Author"
+    }
+  ],
+  "require":
+  {
+    "php": "^7.0"
+  },
+  "autoload":
+  {
+    "psr-4":
+    {
+      "Lum\\Text\\": "lib"
+    }
+  }
+}
