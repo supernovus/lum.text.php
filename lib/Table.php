@@ -3,7 +3,9 @@
 namespace Lum\Text;
 
 /**
- * Let's draw some ASCII tables!
+ * Let's draw some ASCII tables.
+ *
+ * Uses the Box library for the line drawing characters.
  */
 class Table
 {
@@ -28,33 +30,13 @@ class Table
 
   public $multiline = false;
 
-  protected $tl = '2554';
-  protected $tr = '2557';
-  protected $tc = '2564';
-
-  protected $bl = '255A';
-  protected $br = '255D';
-  protected $bc = '2567';
-
-  protected $ll = '255F';
-  protected $rl = '2562';
-  protected $ml = '253C';
-
-  protected $hh = '2550';
-  protected $hl = '2500';
-  protected $vl = '2502';
-  protected $vh = '2551';
+  protected $box;
 
   protected $columns = [];
 
-  static function huc ($code)
-  {
-    return html_entity_decode("&#x$code;", ENT_NOQUOTES, 'UTF-8');
-  }
-
   public function __construct ($opts=[])
   {
-    $optfilter = ['columns'];
+    $optfilter = ['columns', 'box'];
     $optmap = array_keys(get_object_vars($this));
     foreach ($optmap as $opt)
     {
@@ -66,6 +48,14 @@ class Table
       { // Redefining a property via the constructor.
         $this->$opt = $opts[$opt];
       }
+    }
+    if (isset($opts['box']) && $opts['box'] instanceof Box)
+    { // A Box, or subclass of Box.
+      $this->box = $opts['box'];
+    }
+    else
+    { // Make a default Box, passing our options to it.
+      $this->box = new Box($opts);
     }
     if (isset($opts['columns']) && is_array($opts['columns']))
     {
@@ -92,24 +82,24 @@ class Table
   {
     if ($pos === self::POS_FIRST)
     {
-      $l = self::huc($this->hh);
-      $s = self::huc($this->tl);
-      $m = self::huc($this->tc);
-      $f = self::huc($this->tr);
+      $l = $this->box->get('hh');
+      $s = $this->box->get('tl');
+      $m = $this->box->get('tc');
+      $f = $this->box->get('tr');
     }
     elseif ($pos == self::POS_LAST)
     {
-      $l = self::huc($this->hh);
-      $s = self::huc($this->bl);
-      $m = self::huc($this->bc);
-      $f = self::huc($this->br);
+      $l = $this->box->get('hh');
+      $s = $this->box->get('bl');
+      $m = $this->box->get('bc');
+      $f = $this->box->get('br');
     }
     else
     {
-      $l = self::huc($this->hl);
-      $s = self::huc($this->ll);
-      $m = self::huc($this->ml);
-      $f = self::huc($this->rl);
+      $l = $this->box->get('hl'); 
+      $s = $this->box->get('ll'); 
+      $m = $this->box->get('ml'); 
+      $f = $this->box->get('rl'); 
     }
     
     $lc = count($this->columns)-1;
@@ -177,8 +167,8 @@ class Table
     else
       $row = '';
 
-    $l = self::huc($this->vl);
-    $h = self::huc($this->vh);
+    $l = $this->box->get('vl'); 
+    $h = $this->box->get('vh'); 
 
     if ($this->multiline)
     { // First we need to figure out how many pages.
