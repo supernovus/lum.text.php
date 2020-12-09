@@ -233,25 +233,6 @@ class Column
   public $length = 16;
   public $align  = Table::ALIGN_LEFT;
 
-  static function pad ($str, $len, $start=0, $align=ALIGN_LEFT, $trunc='', $pad=' ')
-  {
-    $slen = strlen($str);
-    if ($start >= $slen)
-    {
-      return str_pad('', $len, $pad, $align);
-    }
-    elseif ($slen > $len)
-    {
-      $tlen = $len - strlen($trunc);
-      $sstr = substr($str, $start, $tlen).$trunc;
-      return str_pad($sstr, $len, $pad, $align);
-    }
-    else
-    {
-      return str_pad($str, $len, $pad, $align);
-    }
-  }
-
   public function __construct (Table $table, $opts=[])
   {
     $this->table = $table;
@@ -270,10 +251,34 @@ class Column
     return ceil(strlen($text) / $this->length);
   }
 
-  public function get ($text, $page=1, $addTrunc=true)
+  public function get ($text, $page=1, $opts=[])
   {
     $start = ($this->length * ($page - 1));
-    $trunc = $addTrunc ? $this->table->trunc : '';
-    return self::pad($text, $this->length, $start, $this->align, $trunc, $this->table->pad);
+    if (!is_array($opts))
+    { // Boolean opts is the addTrunc parameter. String is 'trunc'.
+      $opts = ['append'=>$opts];
+    }
+
+    $opts['offset'] = $start;
+
+    if (!isset($opts['append']))
+    { // Wasn't specified, use the default.
+      $opts['append'] = $this->table->trunc;
+    }
+    elseif (is_bool($opts['append']))
+    { // It was boolean, use the addTrunc logic.
+      $opts['append'] = $opts['append'] ? $this->table->trunc : '';
+    }
+
+    if (!isset($opts['align']))
+    {
+      $opts['align'] = $this->align;
+    }
+    if (!isset($opts['pad']))
+    {
+      $opts['pad'] = $this->table->pad;
+    }
+
+    return Util::pad($text, $this->length, $opts);
   }
 }
