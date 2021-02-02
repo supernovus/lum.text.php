@@ -195,7 +195,7 @@ class Colours
     $colorname = strtolower(substr($colorname, 0, 3));
     switch ($colorname)
     {
-      case 'black':
+      case 'bla':
         $code .= self::C_BLACK;
         break;
       case 'red':
